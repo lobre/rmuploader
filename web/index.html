@@ -62,7 +62,14 @@
         const inputElement = document.querySelector('input[type="file"]');
         const pond = FilePond.create( inputElement );
         FilePond.setOptions({
-                server: 'api/'
+            allowDrop: true,
+            allowMultiple: false,
+            allowReplace: true,
+            instantUpload: false,
+            allowRevert: true,
+            dropOnPage: true,
+            server: 'upload',
+            labelIdle: 'Drag & Drop a file or <span class="filepond--label-action"> Browse </span>'
         });
     </script>
 </body>
