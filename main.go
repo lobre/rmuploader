@@ -3,17 +3,50 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
+
+	"github.com/google/uuid"
+	"github.com/juruen/rmapi/api.v2"
+	"github.com/juruen/rmapi/auth"
 )
 
+const codeEnv string = "RMUPLOADER_CODE"
+
+type server struct {
+	cli *api.Client
+}
+
+// newServer creates a server with an api client with correct authentication
+// initiated using the code environment variable.
+func newServer() (server, error) {
+	s := server{}
+
+	code, ok := os.LookupEnv(codeEnv)
+	if !ok {
+		return s, fmt.Errorf("%s variable is not defined", codeEnv)
+	}
+
+	auth := auth.New()
+	auth.RegisterDevice(code)
+
+	// The default auth uses ~/.rmapi to store credentials
+	s.cli = api.NewClient(auth.Client())
+
+	return s, nil
+}
+
 func main() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/upload", upload)
+	s, err := newServer()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	http.HandleFunc("/", s.index)
+	http.HandleFunc("/upload", s.upload)
 	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("web/img/"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("web/css/"))))
 
@@ -22,12 +55,12 @@ func main() {
 	}
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func (s server) index(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("web/index.html"))
 	tmpl.Execute(w, nil)
 }
 
-func upload(w http.ResponseWriter, r *http.Request) {
+func (s server) upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		file, header, err := r.FormFile("file")
@@ -37,22 +70,22 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		err = saveFile(file, header.Filename)
-		if err != nil {
+		id := uuid.New().String()
+		if err = s.uploadToRm(id, file, header.Filename); err != nil {
 			fmt.Fprintf(w, "%v", err)
 			return
 		}
 
-		fmt.Fprintf(w, header.Filename)
+		fmt.Fprintf(w, id)
 
 	case "DELETE":
-		file, err := ioutil.ReadAll(r.Body)
+		id, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			fmt.Fprintf(w, "%v", err)
 			return
 		}
 
-		if err := deleteFile(string(file)); err != nil {
+		if err := s.deleteFromRm(string(id)); err != nil {
 			fmt.Fprintf(w, "%v", err)
 			return
 		}
@@ -69,49 +102,4 @@ func logRequest(handler http.Handler) http.Handler {
 		log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 		handler.ServeHTTP(w, r)
 	})
-}
-
-func saveFile(r io.Reader, name string) error {
-	dirPath, err := uploadPath()
-	if err != nil {
-		return err
-	}
-
-	// Make sure upload directory exists
-	_ = os.Mkdir(dirPath, 0755)
-
-	file, err := os.OpenFile(filepath.Join(dirPath, name), os.O_WRONLY|os.O_CREATE, 0664)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	io.Copy(file, r)
-
-	return nil
-}
-
-func deleteFile(name string) error {
-	dirPath, err := uploadPath()
-	if err != nil {
-		return err
-	}
-
-	filePath := filepath.Join(dirPath, name)
-
-	if err := os.Remove(filePath); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func uploadPath() (string, error) {
-	ex, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-
-	exPath := filepath.Dir(ex)
-	return filepath.Join(exPath, "uploads"), nil
 }
