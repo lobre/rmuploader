@@ -1,0 +1,4 @@
+github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/juruen/rmapi v0.0.5 h1:Xm6lt0Vbo/4YsUWIP4T8NTdedS21cynmqlgu8CU5D8M=
+github.com/juruen/rmapi v0.0.5/go.mod h1:8k1Tl2a+p9aVRd4pWYZVhFEGN98RDhvpWYxS3iGoIxk=
