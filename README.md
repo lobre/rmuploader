@@ -14,7 +14,7 @@ It is written in Go and it makes use of the latest `api.v2` and `archive` packag
 
 ## Send a webpage from a URL
 
-This apps also provides an input to submit an URL. The webpage is crawled, converted into PDF and sent to the device.
+This app also provides an input to submit an URL. The webpage is crawled, converted into PDF and sent to the device.
 It uses wkhtmltopdf underneath so it should be installed for this feature to work.
 
 ## How to launch the app
