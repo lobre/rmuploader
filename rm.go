@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path/filepath"
 
 	"github.com/juruen/rmapi/archive"
 )
 
 // uploadToRm sends the file to the Remarkable device.
-func (s server) uploadToRm(id string, r io.Reader, name string) error {
+func (s server) uploadToRm(id string, file []byte, name string) error {
 	zip := archive.NewZip()
 	zip.UUID = id
 
@@ -19,18 +18,10 @@ func (s server) uploadToRm(id string, r io.Reader, name string) error {
 	switch ext {
 
 	case ".epub":
-		var err error
-		zip.Epub, err = ioutil.ReadAll(r)
-		if err != nil {
-			return err
-		}
+		zip.Epub = file
 		zip.Content.FileType = "epub"
 	case ".pdf":
-		var err error
-		zip.Pdf, err = ioutil.ReadAll(r)
-		if err != nil {
-			return err
-		}
+		zip.Pdf = file
 		zip.Content.FileType = "pdf"
 	default:
 		return fmt.Errorf("file does not have a supported extension")

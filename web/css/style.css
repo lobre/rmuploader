@@ -182,3 +182,39 @@ label {
     }
 
 }
+
+/*
+ * -- Custom styles --
+ */
+.wrapper {
+    max-width: 768px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#toast {
+    min-width: 350px;
+    margin-left: -175px;
+    background: rgba(45, 62, 80, 0.9);
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 5px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 60px;
+    -webkit-animation: fadein 0.5s;
+    animation: fadein 0.5s;
+}
+
+/* Animations to fade the toast in */
+@-webkit-keyframes fadein {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 60px; opacity: 1; }
+}
+
+@keyframes fadein {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 60px; opacity: 1; }
+}
