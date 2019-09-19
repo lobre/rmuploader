@@ -20,9 +20,7 @@
 
     <div class="content-wrapper">
         <div class="content wrapper">
-            {{ if . }}
-                <p id="toast">{{ . }}</p>
-            {{ end }}
+            <p id="toast" {{ if not . }}hidden{{ end }}>{{ if . }}{{ . }}{{ end }}</p>
 
             <h2 class="content-head is-center">Remarkable tablet file uploader</h2>
 
@@ -39,11 +37,13 @@
 
             <div class="pure-g">
                 <div class="pure-u-1 pure-u-md-2-5">
-                    <fieldset>
-                        <input id="file" type="file" name="file" />
-                    </fieldset>
+                    <div class="pure-form is-center">
+                        <fieldset>
+                            <input id="file" type="file" name="file" />
+                        </fieldset>
+                    </div>
 
-                    <form method="post" action="/fetch" class="pure-form pure-form-stacked is-center">
+                    <form method="post" action="/" class="pure-form pure-form-stacked is-center">
                         <fieldset>
                             <p>Or enter the URL of a webpage that you want to export to your device (wkhtmltopdf is required).</p>
                             <input type="url" name="url" placeholder="https://example.com">
@@ -67,6 +67,17 @@
 
     </div>
 
+    <script>
+        function hideToast() {
+            document.getElementById("toast").hidden = true;
+            document.getElementById("toast").innerHTML = '';
+        }
+        function showToast(msg) {
+            document.getElementById("toast").innerHTML = msg;
+            document.getElementById("toast").hidden = false;
+        }
+    </script>
+
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
         const inputElement = document.querySelector('input[type="file"]');
@@ -79,17 +90,12 @@
             allowRevert: true,
             dropOnPage: true,
             labelIdle: 'Drag & Drop a file or <span class="filepond--label-action"> Browse </span>',
-            onerror: (error, file, status) => {
-                console.log(error);
-                console.log(file);
-                console.log(status);
-            },
             server: {
                 process: {
                     url: 'upload',
                     method: 'POST',
                     onerror: (response) => {
-                        console.log(response);
+                        showToast(response); 
                         return response.data;
                     }
                 },
@@ -97,10 +103,16 @@
                     url: 'delete',
                     method: 'DELETE',
                     onerror: (response) => {
-                        console.log(response);
+                        showToast(response); 
                         return response.data;
                     }
                 }
+            }
+        });
+
+        pond.on('processfile', (error, file) => {
+            if (!error) {
+                showToast('file request processed'); 
             }
         });
     </script>
