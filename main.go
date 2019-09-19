@@ -48,8 +48,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	// TODO(lobre): GET should return the index page with the msg GET parameters processed
+	// TODO(lobre): POST should fetch from the url and upload. An error can directly be provided in the answer
 	http.HandleFunc("/", s.index)
+	// TODO(lobre): Ajax request to upload a file. In javascript, we should handle the error and redirect to / with msg.
+	// Another solution to avoid a redirect could be to directly change the error toast from javascript.
+	// That could allow to remove the GET parameter msg behavior from the / index page.
 	http.HandleFunc("/upload", s.upload)
+	// TODO(lobre): Ajax request to revert a file. In javascript, we should handle the error and redirect to / with msg.
+	http.HandleFunc("/delete", s.delete)
+
+	// Statics
 	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("web/img/"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("web/css/"))))
 
@@ -143,6 +152,9 @@ func (s server) upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+}
+
+func (s server) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func logRequest(handler http.Handler) http.Handler {
