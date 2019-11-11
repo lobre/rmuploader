@@ -10,14 +10,14 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/google/uuid"
-	"github.com/juruen/rmapi/api.v2"
 	"github.com/juruen/rmapi/auth"
+	"github.com/juruen/rmapi/cloud"
 )
 
 const codeEnv string = "RMUPLOADER_CODE"
 
 type server struct {
-	cli *api.Client
+	cli *cloud.Client
 }
 
 // newServer creates a server with an api client with correct authentication
@@ -35,7 +35,7 @@ func newServer() (server, error) {
 	auth.RegisterDevice(code)
 
 	// The default auth uses ~/.rmapi to store credentials
-	s.cli = api.NewClient(auth.Client())
+	s.cli = cloud.NewClient(auth.Client())
 
 	return s, nil
 }

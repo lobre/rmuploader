@@ -8,6 +8,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.1.1
 	github.com/jonlaing/htmlmeta v0.0.0-20151027182219-aa8670c4f78c
-	github.com/juruen/rmapi v0.0.6
+	github.com/juruen/rmapi v0.0.7
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect
 )
