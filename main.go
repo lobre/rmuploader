@@ -18,12 +18,13 @@ const codeEnv string = "RMUPLOADER_CODE"
 
 type server struct {
 	cli *cloud.Client
+    addr string
 }
 
 // newServer creates a server with an api client with correct authentication
 // initiated using the code environment variable.
-func newServer() (server, error) {
-	s := server{}
+func newServer(addr string) (server, error) {
+    s := server{addr: addr}
 
 	code, ok := os.LookupEnv(codeEnv)
 	if !ok {
@@ -41,7 +42,7 @@ func newServer() (server, error) {
 }
 
 func main() {
-	s, err := newServer()
+    s, err := newServer(":8080")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -56,7 +57,7 @@ func main() {
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("web/css/"))))
 
 	log.Println("Starting web server...")
-	if err := http.ListenAndServe(":8080", logRequest(http.DefaultServeMux)); err != nil {
+	if err := http.ListenAndServe(s.addr, logRequest(http.DefaultServeMux)); err != nil {
 		panic(err)
 	}
 }
